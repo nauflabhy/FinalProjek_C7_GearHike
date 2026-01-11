@@ -1,34 +1,37 @@
-version: '3.8'
+version: "3.9"
 
 services:
   db_service:
     image: mysql:8.0
     container_name: my_database
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword # Sesuaikan dengan password di .env
-      MYSQL_DATABASE: db_gearhike
+    env_file:
+      - .env
     volumes:
       - db_data:/var/lib/mysql
-      # Pastikan folder database berisi file init.sql milikmu
-      - ./database:/docker-entrypoint-initdb.d 
+      - ./database:/docker-entrypoint-initdb.d
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend_app:
-    build: ./app
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: my_backend
     restart: always
-    # Port 3000 tetap dibuka untuk internal/testing jika perlu
-    expose:
-      - "3000"
+    env_file:
+      - .env
     depends_on:
-      - db_service
-    environment:
-      DB_HOST: db_service
-      DB_NAME: db_gearhike
-      DB_USER: root
-      DB_PASS: rootpassword
+      db_service:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - /app/app/node_modules
     networks:
       - app_network
 
@@ -37,9 +40,8 @@ services:
     container_name: my_nginx
     restart: always
     ports:
-      - "2583:80" # PERUBAHAN: Sekarang diakses lewat port 2583
+      - "2583:80"
     volumes:
-      # Menggunakan path default nginx yang umum
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - backend_app

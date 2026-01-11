@@ -1,11 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Tekser</title>
-  </head>
-  <body>
-    <h1>Hello World! Silakan edit file ini.</h1>
-  </body>
+<html>
+<head>
+  <title>GearHike</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #eee; }
+    form.inline { display: inline; }
+  </style>
+</head>
+<body>
+
+<h1>🏕️ GearHike Inventory</h1>
+
+<h2>📦 Ringkasan Kategori</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr>
+    <th>Kategori</th>
+    <th>Jumlah Barang</th>
+  </tr>
+
+  <% categories.forEach(cat => { %>
+    <tr>
+      <td><%= cat.name %></td>
+      <td><%= cat.total_gears %></td>
+    </tr>
+  <% }) %>
+</table>
+
+<hr>
+
+
+<!-- FORM TAMBAH GEAR -->
+<h3>Tambah Gear</h3>
+<form method="POST" action="/gears">
+  <select name="category_id" required>
+    <% categories.forEach(cat => { %>
+      <option value="<%= cat.id %>"><%= cat.name %></option>
+    <% }) %>
+  </select>
+
+  <input type="text" name="name" placeholder="Nama Gear" required>
+  <input type="number" name="weight" placeholder="Berat (gram)" required>
+
+  <select name="status">
+    <option value="Ready">Ready</option>
+    <option value="Borrowed">Borrowed</option>
+  </select>
+
+  <button type="submit">Tambah</button>
+</form>
+
+<!-- TABEL DATA -->
+<h3>Daftar Gear</h3>
+<table>
+  <tr>
+    <th>Kategori</th>
+    <th>Nama</th>
+    <th>Berat (g)</th>
+    <th>Status</th>
+    <th>Aksi</th>
+  </tr>
+
+  <% gears.forEach(gear => { %>
+    <tr>
+      <td><%= gear.category_name %></td>
+      <td><%= gear.name %></td>
+      <td><%= gear.weight %></td>
+      <td><%= gear.status %></td>
+      <td>
+
+        <!-- DELETE -->
+        <form method="POST" action="/gears/delete/<%= gear.id %>" class="inline">
+          <button type="submit">Hapus</button>
+        </form>
+
+        <!-- UPDATE -->
+        <form method="POST" action="/gears/update/<%= gear.id %>" class="inline">
+          <select name="category_id">
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>" <%= cat.id === gear.category_id ? 'selected' : '' %>>
+                <%= cat.name %>
+              </option>
+            <% }) %>
+          </select>
+
+          <input type="text" name="name" value="<%= gear.name %>">
+          <input type="number" name="weight" value="<%= gear.weight %>">
+
+          <select name="status">
+            <option value="Ready" <%= gear.status === 'Ready' ? 'selected' : '' %>>Ready</option>
+            <option value="Borrowed" <%= gear.status === 'Borrowed' ? 'selected' : '' %>>Borrowed</option>
+          </select>
+
+          <button type="submit">Update</button>
+        </form>
+
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+</body>
 </html>

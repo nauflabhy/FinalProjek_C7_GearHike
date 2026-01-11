@@ -1,13 +1,25 @@
-const http = require('http');
-const hostname = '0.0.0.0';
-const port = 3000;
+const express = require('express');
+const path = require('path');
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Halo! Server GearHike Berhasil Jalan!\n');
-});
+const app = express();
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'view')); // ⬅️ FIX DI SINI
+
+// Static
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Routes
+const indexRoutes = require('./routes/index');
+app.use('/', indexRoutes);
+
+// Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
 });
