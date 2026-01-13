@@ -2,10 +2,10 @@
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,        // db_service
-  user: process.env.DB_USER,        // appuser
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'db_service',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'rootpassword',  // ← HARUS ADA
+  database: process.env.DB_NAME || 'db_gearhike',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
